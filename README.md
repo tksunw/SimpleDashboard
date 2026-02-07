@@ -40,6 +40,38 @@ A simple display of date and time, weather with a 3-day forecast, and a calendar
 
    Then open `http://localhost:8080` in a browser.
 
+## Raspberry Pi Kiosk Setup
+
+To run the dashboard on a Raspberry Pi in full-screen kiosk mode:
+
+1. Clone the repo on the Pi and set up your config:
+
+   ```sh
+   git clone https://github.com/tksunw/SimpleDashboard.git
+   cd SimpleDashboard
+   cp config.js.default config.js
+   # edit config.js with your API key, coordinates, etc.
+   # add your background.jpg
+   ```
+
+2. Run the setup script:
+
+   ```sh
+   ./setup-pi.sh
+   ```
+
+   This installs nginx, deploys the dashboard to `/var/www/html`, configures Chromium to launch in kiosk mode on boot, disables screen blanking, and hides the mouse cursor.
+
+3. Reboot — the dashboard starts automatically.
+
+To exit kiosk mode: `Alt+F4`, or SSH in and run `pkill chromium`.
+
+To update files later:
+
+```sh
+sudo cp config.js background.jpg index.html /var/www/html/
+```
+
 ## Configuration
 
 All settings are in `config.js`:
@@ -62,3 +94,4 @@ All settings are in `config.js`:
 | `config.js.default` | Yes | Example config with placeholder values |
 | `config.js` | No | Your actual config (gitignored) |
 | `background.jpg` | No | Your background image (gitignored) |
+| `setup-pi.sh` | Yes | Raspberry Pi kiosk setup script |
