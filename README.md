@@ -2,6 +2,12 @@
 
 A clean, self-contained web dashboard designed for a vertically-mounted monitor. Zero dependencies, zero build step — just a single HTML file with embedded CSS and vanilla JS.
 
+I tried Dakboard, and MagicMirror, and while both had great options, and a lot of extensibility, neither was able to do exactly what I wanted. Dakboard might have with the paid plan, but I didn't feel like paying just to have such a simple dashboard that didn't need any of the advanced integrations that make Dakboard and MagicMirror so appreciated by the people who do use the advanced features.
+
+A simple display of date and time, weather with a 3-day forecast, and a calendar with no personal information, is all I wanted.
+
+![SimpleDashboard screenshot](SimpleDashboard.20260207.png)
+
 ## Features
 
 - **Clock** — large, updates every second, 12 or 24-hour format
