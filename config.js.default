@@ -1,0 +1,9 @@
+const CONFIG = {
+  weatherApiKey: 'YOUR_PIRATEWEATHER_API_KEY',
+  weatherLat: '40.7128',            // your latitude
+  weatherLon: '-74.0060',           // your longitude
+  weatherUnits: 'us',              // 'us' for Fahrenheit, 'si' for Celsius
+  weatherRefreshMin: 15,           // refresh weather every N minutes
+  backgroundImage: 'background.jpg',
+  timeFormat: 12,                  // 12 or 24
+};

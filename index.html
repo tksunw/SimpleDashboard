@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --s: 1px;
+  }
+
+  body {
+    width: 100vw;
+    height: 100dvh;
+    height: 100vh; /* fallback for older browsers, overridden by JS */
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #fff;
+    background: #000;
+    position: relative;
+  }
+
+  #bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  #overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  #content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+    margin: 0 auto;
+    padding: calc(var(--s) * 1) calc(var(--s) * 2) calc(var(--s) * 2);
+    opacity: 0;
+  }
+
+  #content.ready {
+    opacity: 1;
+    transition: opacity 0.3s;
+  }
+
+  #date-line {
+    font-size: calc(var(--s) * 3);
+    font-weight: 300;
+    letter-spacing: calc(var(--s) * 0.1);
+    margin-bottom: calc(var(--s) * 1);
+    white-space: nowrap;
+  }
+
+  #time {
+    font-size: calc(var(--s) * 11);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: calc(var(--s) * 5);
+    letter-spacing: calc(var(--s) * -0.3);
+    white-space: nowrap;
+  }
+
+  /* --- Weather section: current left, forecast right --- */
+  #weather {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--s) * 4);
+    min-height: calc(var(--s) * 8);
+    white-space: nowrap;
+  }
+
+  #weather-current {
+    text-align: center;
+  }
+
+  #weather-main {
+    font-size: calc(var(--s) * 5);
+    font-weight: 300;
+    margin-bottom: calc(var(--s) * 0.4);
+  }
+
+  #weather-main .icon {
+    margin-right: calc(var(--s) * 0.5);
+  }
+
+  #weather-feels {
+    font-size: calc(var(--s) * 2.3);
+    font-weight: 300;
+    opacity: 0.7;
+  }
+
+  #weather-divider {
+    width: 1px;
+    height: calc(var(--s) * 8);
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  #weather-forecast {
+    display: flex;
+    gap: calc(var(--s) * 2.5);
+  }
+
+  .forecast-day {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--s) * 0.3);
+  }
+
+  .forecast-day .fc-label {
+    font-size: calc(var(--s) * 1.8);
+    font-weight: 600;
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+
+  .forecast-day .fc-icon {
+    font-size: calc(var(--s) * 3.5);
+    line-height: 1.2;
+  }
+
+  .forecast-day .fc-temps {
+    font-size: calc(var(--s) * 2);
+    font-weight: 300;
+  }
+
+  .forecast-day .fc-hi {
+    font-weight: 500;
+  }
+
+  .forecast-day .fc-lo {
+    opacity: 0.5;
+  }
+
+  /* --- Calendar --- */
+  #calendar {
+    width: calc(var(--s) * 58);
+    margin-top: auto;
+  }
+
+  #cal-header {
+    text-align: center;
+    font-size: calc(var(--s) * 3);
+    font-weight: 400;
+    margin-bottom: calc(var(--s) * 1.2);
+    letter-spacing: calc(var(--s) * 0.1);
+  }
+
+  #cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: calc(var(--s) * 0.3) 0;
+    text-align: center;
+    font-size: calc(var(--s) * 2.6);
+  }
+
+  #cal-grid .dow {
+    font-size: calc(var(--s) * 2.2);
+    font-weight: 600;
+    opacity: 0.5;
+    padding-bottom: calc(var(--s) * 0.6);
+    text-transform: uppercase;
+  }
+
+  #cal-grid .day {
+    width: calc(var(--s) * 6.5);
+    height: calc(var(--s) * 6.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 50%;
+    font-weight: 300;
+  }
+
+  #cal-grid .day.today {
+    background: rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+  }
+
+  #cal-grid .day.empty {
+    visibility: hidden;
+  }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="overlay"></div>
+<div id="content">
+  <div id="date-line"></div>
+  <div id="time"></div>
+  <div id="weather">
+    <div id="weather-current">
+      <div id="weather-main"></div>
+      <div id="weather-feels"></div>
+    </div>
+    <div id="weather-divider"></div>
+    <div id="weather-forecast"></div>
+  </div>
+  <div id="calendar">
+    <div id="cal-header"></div>
+    <div id="cal-grid"></div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script>
+
+const WEATHER_ICONS = {
+  'clear-day': '☀️',
+  'clear-night': '🌙',
+  'rain': '🌧️',
+  'snow': '❄️',
+  'cloudy': '☁️',
+  'partly-cloudy-day': '⛅',
+  'partly-cloudy-night': '☁️',
+  'fog': '🌫️',
+  'wind': '💨',
+  'thunderstorm': '⛈️',
+  'sleet': '🌨️',
+};
+
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// --- Responsive scaling ---
+// Measure content at --s=1px to find its natural proportions (in scale units),
+// then compute --s so content fills the viewport.
+let contentUnitsW, contentUnitsH;
+
+function measureContent() {
+  const el = document.getElementById('content');
+  // Auto-size to measure natural dimensions
+  el.style.height = 'auto';
+  document.documentElement.style.setProperty('--s', '1px');
+  contentUnitsW = el.offsetWidth;
+  contentUnitsH = el.offsetHeight;
+  // Restore full height so margin-top:auto can pin calendar to bottom
+  el.style.height = '100%';
+}
+
+function updateScale() {
+  // Use window.innerHeight to get the real visible height (fixes iOS Safari 100vh bug)
+  document.body.style.height = window.innerHeight + 'px';
+  const s = Math.min(window.innerWidth / contentUnitsW, window.innerHeight / (contentUnitsH * 1.05));
+  document.documentElement.style.setProperty('--s', s + 'px');
+}
+
+// --- Background ---
+document.getElementById('bg').style.backgroundImage = `url('${CONFIG.backgroundImage}')`;
+
+// --- Time & Date ---
+let lastDateStr = '';
+
+function updateClock() {
+  const now = new Date();
+  let hours = now.getHours();
+  const mins = String(now.getMinutes()).padStart(2, '0');
+  let suffix = '';
+
+  if (CONFIG.timeFormat === 12) {
+    suffix = hours >= 12 ? ' PM' : ' AM';
+    hours = hours % 12 || 12;
+  }
+
+  document.getElementById('time').textContent = `${hours}:${mins}${suffix}`;
+
+  const dateStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  if (dateStr !== lastDateStr) {
+    lastDateStr = dateStr;
+    document.getElementById('date-line').textContent = `${DAYS[now.getDay()]}  ·  ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    renderCalendar(now);
+  }
+}
+
+// --- Calendar ---
+function renderCalendar(now) {
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const today = now.getDate();
+
+  document.getElementById('cal-header').textContent = `${MONTHS[month]} ${year}`;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const dowLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  for (const label of dowLabels) {
+    const el = document.createElement('div');
+    el.className = 'dow';
+    el.textContent = label;
+    grid.appendChild(el);
+  }
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'day empty';
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    el.className = 'day' + (d === today ? ' today' : '');
+    el.textContent = d;
+    grid.appendChild(el);
+  }
+}
+
+// --- Weather ---
+function fetchWeather() {
+  const url = `https://api.pirateweather.net/forecast/${CONFIG.weatherApiKey}/${CONFIG.weatherLat},${CONFIG.weatherLon}?units=${CONFIG.weatherUnits}&exclude=minutely,hourly,alerts,flags`;
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      // Current conditions
+      const c = data.currently;
+      if (c) {
+        const temp = Math.round(c.temperature);
+        const feels = Math.round(c.apparentTemperature);
+        const icon = WEATHER_ICONS[c.icon] || '';
+
+        document.getElementById('weather-main').innerHTML =
+          `<span class="icon">${icon}</span>${temp}°F`;
+
+        if (Math.abs(temp - feels) > 2) {
+          document.getElementById('weather-feels').textContent = `Feels like ${feels}°F`;
+        } else {
+          document.getElementById('weather-feels').textContent = '';
+        }
+      }
+
+      // 3-day forecast (skip today = index 0, show days 1-3)
+      const forecastEl = document.getElementById('weather-forecast');
+      forecastEl.innerHTML = '';
+
+      if (data.daily && data.daily.data) {
+        const days = data.daily.data.slice(1, 4);
+        for (const day of days) {
+          const dt = new Date(day.time * 1000);
+          const label = DAYS_SHORT[dt.getDay()];
+          const icon = WEATHER_ICONS[day.icon] || '';
+          const hi = Math.round(day.temperatureHigh);
+          const lo = Math.round(day.temperatureLow);
+
+          const el = document.createElement('div');
+          el.className = 'forecast-day';
+          el.innerHTML =
+            `<div class="fc-label">${label}</div>` +
+            `<div class="fc-icon">${icon}</div>` +
+            `<div class="fc-temps"><span class="fc-hi">${hi}°</span> <span class="fc-lo">${lo}°</span></div>`;
+          forecastEl.appendChild(el);
+        }
+
+        document.getElementById('weather-divider').style.display = '';
+
+        // Re-measure now that forecast is rendered
+        measureContent();
+        updateScale();
+      }
+    })
+    .catch(err => {
+      console.error('Weather fetch failed:', err);
+    });
+}
+
+// Hide divider until forecast loads
+document.getElementById('weather-divider').style.display = 'none';
+
+// --- Init ---
+updateClock();
+measureContent();
+updateScale();
+document.getElementById('content').classList.add('ready');
+
+setInterval(updateClock, 1000);
+window.addEventListener('resize', updateScale);
+
+fetchWeather();
+setInterval(fetchWeather, CONFIG.weatherRefreshMin * 60 * 1000);
+</script>
+</body>
+</html>
