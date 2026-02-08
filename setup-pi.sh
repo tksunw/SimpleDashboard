@@ -9,7 +9,8 @@
 # Prerequisites:
 #   - Raspberry Pi OS with Desktop (Bookworm or later)
 #   - Network connection
-#   - config.js and background.jpg in the same directory as this script
+#   - config.js in the same directory as this script
+#   - Background images in backgrounds/ (run ./update-backgrounds.sh after adding images)
 
 set -euo pipefail
 
@@ -31,23 +32,54 @@ if [ ! -f "$SCRIPT_DIR/index.html" ]; then
     exit 1
 fi
 
-# --- Install nginx and emoji fonts ---
-echo "[1/4] Installing nginx and emoji fonts..."
-sudo apt-get update -qq
-sudo apt-get install -y -qq nginx fonts-noto-color-emoji > /dev/null
-echo "       nginx and fonts installed."
+# --- Install packages (only if needed) ---
+echo "[1/4] Checking packages..."
+NEED_INSTALL=()
+if ! command -v nginx &> /dev/null; then
+    NEED_INSTALL+=(nginx)
+else
+    echo "       nginx already installed."
+fi
+if ! dpkg -s fonts-noto-color-emoji &> /dev/null 2>&1; then
+    NEED_INSTALL+=(fonts-noto-color-emoji)
+else
+    echo "       fonts-noto-color-emoji already installed."
+fi
+if ! command -v unclutter &> /dev/null; then
+    NEED_INSTALL+=(unclutter)
+else
+    echo "       unclutter already installed."
+fi
+
+if [ ${#NEED_INSTALL[@]} -gt 0 ]; then
+    echo "       Installing: ${NEED_INSTALL[*]}..."
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq "${NEED_INSTALL[@]}" > /dev/null
+    echo "       Packages installed."
+else
+    echo "       All packages already installed, skipping."
+fi
 
 # --- Deploy dashboard files ---
 echo "[2/4] Deploying dashboard to $WEB_ROOT..."
 sudo rm -f "$WEB_ROOT/index.nginx-debian.html"
 sudo cp "$SCRIPT_DIR/index.html" "$WEB_ROOT/"
 sudo cp "$SCRIPT_DIR/config.js" "$WEB_ROOT/"
-if [ -f "$SCRIPT_DIR/background.jpg" ]; then
-    sudo cp "$SCRIPT_DIR/background.jpg" "$WEB_ROOT/"
-    echo "       background.jpg copied."
+
+# Deploy backgrounds
+sudo mkdir -p "$WEB_ROOT/backgrounds"
+if [ -d "$SCRIPT_DIR/backgrounds" ]; then
+    sudo cp "$SCRIPT_DIR/backgrounds/"* "$WEB_ROOT/backgrounds/" 2>/dev/null || true
+    echo "       backgrounds/ copied."
 else
-    echo "       WARNING: No background.jpg found — add one to $WEB_ROOT later."
+    echo "       WARNING: No backgrounds/ directory found — add images to $WEB_ROOT/backgrounds/ later."
 fi
+
+# Generate manifest
+if [ -f "$SCRIPT_DIR/update-backgrounds.sh" ]; then
+    sudo bash "$SCRIPT_DIR/update-backgrounds.sh" "$WEB_ROOT"
+fi
+
 sudo chown -R www-data:www-data "$WEB_ROOT"
 echo "       Dashboard deployed."
 
@@ -104,12 +136,6 @@ Exec=$KIOSK_SCRIPT
 X-GNOME-Autostart-enabled=true
 EOF
 
-# Install unclutter to hide the mouse cursor
-if ! command -v unclutter &> /dev/null; then
-    sudo apt-get install -y -qq unclutter > /dev/null
-    echo "       unclutter installed (hides cursor)."
-fi
-
 echo "       Kiosk autostart configured."
 
 echo ""
@@ -124,7 +150,9 @@ echo "  To test now:    Open Chromium and go to http://localhost"
 echo "  To go live:     Reboot the Pi — kiosk starts automatically"
 echo ""
 echo "  To update files later:"
-echo "    sudo cp config.js background.jpg index.html $WEB_ROOT/"
+echo "    sudo cp config.js index.html $WEB_ROOT/"
+echo "    sudo cp backgrounds/* $WEB_ROOT/backgrounds/"
+echo "    sudo bash update-backgrounds.sh $WEB_ROOT"
 echo ""
 echo "  To exit kiosk mode: Alt+F4, or SSH in and run:"
 echo "    pkill chromium"

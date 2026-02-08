@@ -22,13 +22,17 @@
     position: relative;
   }
 
-  #bg {
+  .bg-layer {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    transition: opacity 1.5s ease-in-out;
   }
+
+  #bg-a { opacity: 1; }
+  #bg-b { opacity: 0; }
 
   #overlay {
     position: absolute;
@@ -195,7 +199,8 @@
 </style>
 </head>
 <body>
-<div id="bg"></div>
+<div id="bg-a" class="bg-layer"></div>
+<div id="bg-b" class="bg-layer"></div>
 <div id="overlay"></div>
 <div id="content">
   <div id="date-line"></div>
@@ -257,8 +262,85 @@ function updateScale() {
   document.documentElement.style.setProperty('--s', s + 'px');
 }
 
-// --- Background ---
-document.getElementById('bg').style.backgroundImage = `url('${CONFIG.backgroundImage}')`;
+// --- Background Cycling ---
+const bgLayerA = document.getElementById('bg-a');
+const bgLayerB = document.getElementById('bg-b');
+let bgImages = [];
+let bgCurrentIndex = -1;
+let bgActiveLayer = 'a';
+
+function loadBackgroundManifest() {
+  fetch('backgrounds.json?t=' + Date.now())
+    .then(r => {
+      if (!r.ok) throw new Error('not found');
+      return r.json();
+    })
+    .then(files => {
+      if (!Array.isArray(files) || files.length === 0) {
+        console.warn('backgrounds.json is empty or invalid.');
+        return;
+      }
+      bgImages = files.map(f => 'backgrounds/' + f);
+      shuffleArray(bgImages);
+      showBackground(0, false);
+      startCycleTimer();
+    })
+    .catch(() => {
+      // Fallback: try legacy background.jpg
+      bgImages = ['background.jpg'];
+      showBackground(0, false);
+    });
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function showBackground(index, animate) {
+  if (bgImages.length === 0) return;
+  bgCurrentIndex = index % bgImages.length;
+  const url = bgImages[bgCurrentIndex];
+
+  const img = new Image();
+  img.onload = function () {
+    if (animate) {
+      const incoming = bgActiveLayer === 'a' ? bgLayerB : bgLayerA;
+      const outgoing = bgActiveLayer === 'a' ? bgLayerA : bgLayerB;
+      incoming.style.backgroundImage = `url('${url}')`;
+      incoming.style.opacity = '1';
+      outgoing.style.opacity = '0';
+      bgActiveLayer = bgActiveLayer === 'a' ? 'b' : 'a';
+    } else {
+      bgLayerA.style.transition = 'none';
+      bgLayerA.style.backgroundImage = `url('${url}')`;
+      bgLayerA.style.opacity = '1';
+      bgLayerB.style.opacity = '0';
+      bgActiveLayer = 'a';
+      requestAnimationFrame(() => {
+        bgLayerA.style.transition = 'opacity 1.5s ease-in-out';
+      });
+    }
+  };
+  img.onerror = function () {
+    console.warn('Failed to load background:', url);
+    if (bgImages.length > 1) {
+      showBackground(index + 1, animate);
+    }
+  };
+  img.src = url;
+}
+
+function startCycleTimer() {
+  const minutes = CONFIG.backgroundCycleMin || 0;
+  if (minutes > 0 && bgImages.length > 1) {
+    setInterval(() => showBackground(bgCurrentIndex + 1, true), minutes * 60 * 1000);
+  }
+}
+
+loadBackgroundManifest();
 
 // --- Time & Date ---
 let lastDateStr = '';
