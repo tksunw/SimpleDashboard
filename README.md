@@ -52,8 +52,9 @@ A simple display of date and time, weather with a 3-day forecast, and a calendar
 
    **Background priority by filename prefix:**
    1. **Date-specific** (`MMDD` prefix, e.g. `0214-valentines.jpg`) — shown only on that date
-   2. **Month-specific** (`MM` prefix + non-digit, e.g. `02-winter.jpg`) — shown during that month, unless a date-specific match exists
-   3. **General** (no prefix, e.g. `bokeh1.jpg`) — used when no date or month match exists
+   2. **Month-specific** (`MM` prefix + non-digit, e.g. `02-winter.jpg`) — shown during that month
+   3. **Season-specific** (`spring-`, `summer-`, `autumn-`, `winter-` prefix, e.g. `spring-flowers.jpg`) — shown during that astronomical season (uses latitude from config to detect hemisphere)
+   4. **General** (no prefix, e.g. `bokeh1.jpg`) — used when no higher-priority match exists
 
 4. Serve with any web server:
 
