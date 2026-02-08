@@ -270,9 +270,10 @@ let bgImages = [];
 let bgCurrentIndex = -1;
 let bgActiveLayer = 'a';
 
-// Date-specific backgrounds: filenames starting with MMDD (e.g. 0214-valentines.jpg)
-// are shown only on that date. When date-specific images exist for today,
-// non-dated backgrounds are excluded.
+// Background priority:
+//   1. Date-specific: MMDD prefix (e.g. 0214-valentines.jpg) — shown only on that day
+//   2. Month-specific: MM prefix followed by non-digit (e.g. 02-winter.jpg) — shown that month
+//   3. General: no date/month prefix (e.g. bokeh1.jpg) — used as fallback
 function getTodayMMDD() {
   const now = new Date();
   return String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
@@ -280,9 +281,21 @@ function getTodayMMDD() {
 
 function filterByDate(files) {
   const today = getTodayMMDD();
-  const todayFiles = files.filter(f => f.startsWith(today));
-  if (todayFiles.length > 0) return todayFiles;
-  return files.filter(f => !/^\d{4}/.test(f));
+  const month = today.slice(0, 2);
+
+  // Priority 1: date-specific (4-digit MMDD prefix matching today)
+  const dateFiles = files.filter(f => f.startsWith(today));
+  if (dateFiles.length > 0) return dateFiles;
+
+  // Priority 2: month-specific (2-digit MM prefix + non-digit, not 4-digit date)
+  const monthFiles = files.filter(f => {
+    const m = f.match(/^(\d{2})\D/);
+    return m && m[1] === month && !/^\d{4}/.test(f);
+  });
+  if (monthFiles.length > 0) return monthFiles;
+
+  // Priority 3: general (no date or month prefix)
+  return files.filter(f => !/^\d{4}/.test(f) && !/^\d{2}\D/.test(f));
 }
 
 function loadBackgroundManifest() {
