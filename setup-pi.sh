@@ -31,11 +31,11 @@ if [ ! -f "$SCRIPT_DIR/index.html" ]; then
     exit 1
 fi
 
-# --- Install nginx ---
-echo "[1/4] Installing nginx..."
+# --- Install nginx and emoji fonts ---
+echo "[1/4] Installing nginx and emoji fonts..."
 sudo apt-get update -qq
-sudo apt-get install -y -qq nginx > /dev/null
-echo "       nginx installed."
+sudo apt-get install -y -qq nginx fonts-noto-color-emoji > /dev/null
+echo "       nginx and fonts installed."
 
 # --- Deploy dashboard files ---
 echo "[2/4] Deploying dashboard to $WEB_ROOT..."

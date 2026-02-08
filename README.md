@@ -17,6 +17,16 @@ A simple display of date and time, weather with a 3-day forecast, and a calendar
 - **Background image** — full-bleed with dark overlay for text contrast
 - **Auto-scaling** — all elements scale proportionally to fit any browser size, from phones to large monitors
 
+## Requirements
+
+- A web server (nginx, Apache, or `python3 -m http.server` for testing)
+- A [PirateWeather](https://pirateweather.net/) API key (free)
+- **Linux/Raspberry Pi only:** install `fonts-noto-color-emoji` for weather emoji to render:
+
+  ```sh
+  sudo apt install fonts-noto-color-emoji
+  ```
+
 ## Setup
 
 1. Copy the example config and fill in your values:
@@ -60,7 +70,7 @@ To run the dashboard on a Raspberry Pi in full-screen kiosk mode:
    ./setup-pi.sh
    ```
 
-   This installs nginx, deploys the dashboard to `/var/www/html`, configures Chromium to launch in kiosk mode on boot, disables screen blanking, and hides the mouse cursor.
+   This installs nginx and emoji fonts, deploys the dashboard to `/var/www/html`, configures Chromium to launch in kiosk mode on boot, disables screen blanking, and hides the mouse cursor.
 
 3. Reboot — the dashboard starts automatically.
 
