@@ -92,7 +92,7 @@ To update files later:
 ```sh
 sudo cp config.js index.html /var/www/html/
 sudo cp backgrounds/* /var/www/html/backgrounds/
-sudo bash update-backgrounds.sh /var/www/html
+sudo bash update-backgrounds.sh
 ```
 
 ## Configuration

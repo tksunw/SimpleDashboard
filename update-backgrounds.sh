@@ -2,11 +2,17 @@
 #
 # Scans the backgrounds/ directory and writes backgrounds.json
 # Usage: ./update-backgrounds.sh [path-to-web-root]
-#   Default path: directory containing this script
+#   Default path: /var/www/html (falls back to script directory)
 
 set -euo pipefail
 
-TARGET_DIR="${1:-$(cd "$(dirname "$0")" && pwd)}"
+if [ -n "${1:-}" ]; then
+    TARGET_DIR="$1"
+elif [ -d "/var/www/html/backgrounds" ]; then
+    TARGET_DIR="/var/www/html"
+else
+    TARGET_DIR="$(cd "$(dirname "$0")" && pwd)"
+fi
 BG_DIR="$TARGET_DIR/backgrounds"
 
 if [ ! -d "$BG_DIR" ]; then
