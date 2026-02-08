@@ -14,7 +14,7 @@ A simple display of date and time, weather with a 3-day forecast, and a calendar
 - **Date** — day of week and full date on a single line
 - **Weather** — current conditions with icon, temperature, and "feels like" plus a 3-day forecast (via [PirateWeather](https://pirateweather.net/))
 - **Calendar** — current month grid with today highlighted
-- **Background image** — full-bleed with dark overlay for text contrast
+- **Background images** — cycles through images in `backgrounds/` with smooth crossfade transitions
 - **Auto-scaling** — all elements scale proportionally to fit any browser size, from phones to large monitors
 
 ## Requirements
@@ -40,7 +40,17 @@ A simple display of date and time, weather with a 3-day forecast, and a calendar
    - Set your latitude and longitude
    - Adjust units, time format, etc.
 
-3. Drop a `background.jpg` in the project directory (any resolution — it will be scaled to cover the screen).
+3. Create a `backgrounds/` folder and add your background images (any resolution — they will be scaled to cover the screen):
+
+   ```sh
+   mkdir backgrounds
+   cp /path/to/your/images/*.jpg backgrounds/
+   ./update-backgrounds.sh
+   ```
+
+   This generates `backgrounds.json`, which tells the dashboard which images are available. Re-run `./update-backgrounds.sh` whenever you add or remove images. The manifest is also re-read automatically on each cycle interval.
+
+   **Date-specific backgrounds:** Name a file starting with `MMDD` (e.g. `0214-valentines.jpg`) and it will only be shown on that date (February 14th). On dates with matching backgrounds, all non-dated images are skipped. Files with a 4-digit prefix that don't match today are always excluded.
 
 4. Serve with any web server:
 
@@ -61,7 +71,8 @@ To run the dashboard on a Raspberry Pi in full-screen kiosk mode:
    cd SimpleDashboard
    cp config.js.default config.js
    # edit config.js with your API key, coordinates, etc.
-   # add your background.jpg
+   # add your background images to backgrounds/
+   ./update-backgrounds.sh
    ```
 
 2. Run the setup script:
@@ -70,7 +81,7 @@ To run the dashboard on a Raspberry Pi in full-screen kiosk mode:
    ./setup-pi.sh
    ```
 
-   This installs nginx and emoji fonts, deploys the dashboard to `/var/www/html`, configures Chromium to launch in kiosk mode on boot, disables screen blanking, and hides the mouse cursor.
+   This installs nginx, emoji fonts, and unclutter (if not already installed), deploys the dashboard to `/var/www/html`, configures Chromium to launch in kiosk mode on boot, disables screen blanking, and hides the mouse cursor.
 
 3. Reboot — the dashboard starts automatically.
 
@@ -79,7 +90,9 @@ To exit kiosk mode: `Alt+F4`, or SSH in and run `pkill chromium`.
 To update files later:
 
 ```sh
-sudo cp config.js background.jpg index.html /var/www/html/
+sudo cp config.js index.html /var/www/html/
+sudo cp backgrounds/* /var/www/html/backgrounds/
+sudo bash update-backgrounds.sh /var/www/html
 ```
 
 ## Configuration
@@ -93,7 +106,7 @@ All settings are in `config.js`:
 | `weatherLon` | Longitude | — |
 | `weatherUnits` | `'us'` (Fahrenheit) or `'si'` (Celsius) | `'us'` |
 | `weatherRefreshMin` | Minutes between weather updates | `15` |
-| `backgroundImage` | Path to background image | `'background.jpg'` |
+| `backgroundCycleMin` | Minutes between background changes (0 to disable); also controls how often the manifest is re-read | `5` |
 | `timeFormat` | `12` or `24` hour clock | `12` |
 
 ## Files
@@ -103,5 +116,8 @@ All settings are in `config.js`:
 | `index.html` | Yes | Dashboard (HTML + CSS + JS) |
 | `config.js.default` | Yes | Example config with placeholder values |
 | `config.js` | No | Your actual config (gitignored) |
-| `background.jpg` | No | Your background image (gitignored) |
+| `backgrounds/` | No | Your background images (gitignored) |
+| `backgrounds.json` | No | Auto-generated manifest of background images (gitignored) |
+| `backgrounds.json.default` | Yes | Example manifest format |
+| `update-backgrounds.sh` | Yes | Regenerates `backgrounds.json` from `backgrounds/` |
 | `setup-pi.sh` | Yes | Raspberry Pi kiosk setup script |
