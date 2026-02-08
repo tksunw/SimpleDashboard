@@ -44,7 +44,7 @@
     align-items: center;
     width: max-content;
     margin: 0 auto;
-    padding: calc(var(--s) * 1) calc(var(--s) * 2) calc(var(--s) * 2);
+    padding: calc(var(--s) * 3) calc(var(--s) * 2) calc(var(--s) * 6);
     opacity: 0;
   }
 
@@ -54,10 +54,10 @@
   }
 
   #date-line {
-    font-size: calc(var(--s) * 4.5);
+    font-size: calc(var(--s) * 5);
     font-weight: 300;
     letter-spacing: calc(var(--s) * 0.1);
-    margin-bottom: calc(var(--s) * 1);
+    margin-bottom: calc(var(--s) * 2);
     white-space: nowrap;
   }
 
@@ -65,18 +65,16 @@
     font-size: calc(var(--s) * 11);
     font-weight: 700;
     line-height: 1;
-    margin-bottom: calc(var(--s) * 5);
+    margin-bottom: calc(var(--s) * 10);
     letter-spacing: calc(var(--s) * -0.3);
     white-space: nowrap;
   }
 
-  /* --- Weather section: current left, forecast right --- */
+  /* --- Weather section: stacked vertically --- */
   #weather {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: calc(var(--s) * 4);
-    min-height: calc(var(--s) * 8);
     white-space: nowrap;
   }
 
@@ -85,8 +83,9 @@
   }
 
   #weather-main {
-    font-size: calc(var(--s) * 8);
-    font-weight: 300;
+    font-size: calc(var(--s) * 10);
+    font-weight: 450;
+    line-height: 1;
     margin-bottom: calc(var(--s) * 0.4);
   }
 
@@ -95,20 +94,19 @@
   }
 
   #weather-feels {
-    font-size: calc(var(--s) * 3.5);
+    font-size: calc(var(--s) * 4.5);
     font-weight: 300;
     opacity: 0.7;
+    margin-bottom: calc(var(--s) * 3);
   }
 
   #weather-divider {
-    width: 1px;
-    height: calc(var(--s) * 12);
-    background: rgba(255, 255, 255, 0.25);
+    display: none;
   }
 
   #weather-forecast {
     display: flex;
-    gap: calc(var(--s) * 2.5);
+    gap: calc(var(--s) * 3);
   }
 
   .forecast-day {
@@ -116,23 +114,23 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: calc(var(--s) * 0.3);
+    gap: 0;
   }
 
   .forecast-day .fc-label {
-    font-size: calc(var(--s) * 3);
+    font-size: calc(var(--s) * 4.5);
     font-weight: 600;
     opacity: 0.6;
     text-transform: uppercase;
   }
 
   .forecast-day .fc-icon {
-    font-size: calc(var(--s) * 5.5);
+    font-size: calc(var(--s) * 7);
     line-height: 1.2;
   }
 
   .forecast-day .fc-temps {
-    font-size: calc(var(--s) * 3.2);
+    font-size: calc(var(--s) * 4.5);
     font-weight: 300;
   }
 
@@ -152,25 +150,25 @@
 
   #cal-header {
     text-align: center;
-    font-size: calc(var(--s) * 4);
+    font-size: calc(var(--s) * 6);
     font-weight: 400;
-    margin-bottom: calc(var(--s) * 1.2);
+    margin-bottom: calc(var(--s) * 1.8);
     letter-spacing: calc(var(--s) * 0.1);
   }
 
   #cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: calc(var(--s) * 0.3) 0;
+    gap: calc(var(--s) * 0.5) 0;
     text-align: center;
-    font-size: calc(var(--s) * 3.5);
+    font-size: calc(var(--s) * 5.25);
   }
 
   #cal-grid .dow {
-    font-size: calc(var(--s) * 3);
+    font-size: calc(var(--s) * 4.5);
     font-weight: 600;
     opacity: 0.5;
-    padding-bottom: calc(var(--s) * 0.6);
+    padding-bottom: calc(var(--s) * 0.9);
     text-transform: uppercase;
   }
 
@@ -186,8 +184,9 @@
   }
 
   #cal-grid .day.today {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(50, 120, 220, 0.85);
     font-weight: 700;
+    color: white;
   }
 
   #cal-grid .day.empty {
@@ -280,7 +279,7 @@ function updateClock() {
   const dateStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
   if (dateStr !== lastDateStr) {
     lastDateStr = dateStr;
-    document.getElementById('date-line').textContent = `${DAYS[now.getDay()]}  ·  ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    document.getElementById('date-line').textContent = `${DAYS[now.getDay()]}  \u00B7  ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
     renderCalendar(now);
   }
 }
@@ -367,7 +366,6 @@ function fetchWeather() {
           forecastEl.appendChild(el);
         }
 
-        document.getElementById('weather-divider').style.display = '';
 
         // Re-measure now that forecast is rendered
         measureContent();
@@ -379,8 +377,6 @@ function fetchWeather() {
     });
 }
 
-// Hide divider until forecast loads
-document.getElementById('weather-divider').style.display = 'none';
 
 // --- Init ---
 updateClock();
