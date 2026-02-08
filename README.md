@@ -48,7 +48,9 @@ A simple display of date and time, weather with a 3-day forecast, and a calendar
    ./update-backgrounds.sh
    ```
 
-   This generates `backgrounds.json`, which tells the dashboard which images are available. Re-run `./update-backgrounds.sh` whenever you add or remove images.
+   This generates `backgrounds.json`, which tells the dashboard which images are available. Re-run `./update-backgrounds.sh` whenever you add or remove images. The manifest is also re-read automatically on each cycle interval.
+
+   **Date-specific backgrounds:** Name a file starting with `MMDD` (e.g. `0214-valentines.jpg`) and it will only be shown on that date (February 14th). On dates with matching backgrounds, all non-dated images are skipped. Files with a 4-digit prefix that don't match today are always excluded.
 
 4. Serve with any web server:
 
@@ -104,7 +106,7 @@ All settings are in `config.js`:
 | `weatherLon` | Longitude | — |
 | `weatherUnits` | `'us'` (Fahrenheit) or `'si'` (Celsius) | `'us'` |
 | `weatherRefreshMin` | Minutes between weather updates | `15` |
-| `backgroundCycleMin` | Minutes between background changes (0 to disable) | `5` |
+| `backgroundCycleMin` | Minutes between background changes (0 to disable); also controls how often the manifest is re-read | `5` |
 | `timeFormat` | `12` or `24` hour clock | `12` |
 
 ## Files
