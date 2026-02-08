@@ -23,10 +23,9 @@ No build, no install, no compile. Just serve and open `http://localhost:8080`.
 **Responsive scaling system:** All sizes use `calc(var(--s) * N)`. On init and resize, JS measures content at `--s=1px` to get natural dimensions, then computes the optimal `--s` value to fill the viewport proportionally.
 
 **Background cycling:** Two absolutely-positioned div layers (`#bg-a`, `#bg-b`) crossfade via CSS `transition: opacity`. JS preloads images before swapping opacity to avoid flicker. Manifest (`backgrounds.json`) is re-fetched each cycle tick. Backgrounds are selected by filename prefix priority:
-1. Date-specific (`MMDD` prefix, e.g. `0214-valentines.jpg`)
-2. Month-specific (`MM` + non-digit, e.g. `02-winter.jpg`)
-3. Season-specific (`spring-`/`summer-`/`autumn-`/`winter-` prefix) — uses `CONFIG.weatherLat` to flip for southern hemisphere
-4. General (no prefix, e.g. `bokeh1.jpg`)
+1. Date-specific (`MMDD` prefix, e.g. `0214-valentines.jpg`) — exclusive
+2. Month + Season combined (`MM` + non-digit and `spring-`/`summer-`/`autumn-`/`winter-` prefix pooled together) — season uses `CONFIG.weatherLat` to flip for southern hemisphere
+3. General (no prefix, e.g. `bokeh1.jpg`)
 
 **Weather:** PirateWeather API, fetched on an interval. After forecast renders, content is re-measured and scale is recalculated.
 

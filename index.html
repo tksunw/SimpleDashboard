@@ -271,10 +271,10 @@ let bgCurrentIndex = -1;
 let bgActiveLayer = 'a';
 
 // Background priority:
-//   1. Date-specific: MMDD prefix (e.g. 0214-valentines.jpg) — shown only on that day
-//   2. Month-specific: MM prefix + non-digit (e.g. 02-winter.jpg) — shown that month
-//   3. Season-specific: spring-/summer-/autumn-/winter- prefix — shown that season
-//   4. General: no prefix (e.g. bokeh1.jpg) — used as fallback
+//   1. Date-specific: MMDD prefix (e.g. 0214-valentines.jpg) — exclusive
+//   2. Month + season combined: MM prefix (e.g. 02-snow.jpg) and season prefix
+//      (e.g. winter-frost.jpg) are pooled together for the current month/season
+//   3. General: no prefix (e.g. bokeh1.jpg) — used when no month or season match
 function getTodayMMDD() {
   const now = new Date();
   return String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
@@ -308,19 +308,17 @@ function filterByDate(files) {
   const dateFiles = files.filter(f => f.startsWith(today));
   if (dateFiles.length > 0) return dateFiles;
 
-  // Priority 2: month-specific (2-digit MM prefix + non-digit, not 4-digit date)
+  // Priority 2: month + season combined
   const monthFiles = files.filter(f => {
     const m = f.match(/^(\d{2})\D/);
     return m && m[1] === month && !/^\d{4}/.test(f);
   });
-  if (monthFiles.length > 0) return monthFiles;
-
-  // Priority 3: season-specific (spring-/summer-/autumn-/winter- prefix)
   const season = getCurrentSeason();
   const seasonFiles = files.filter(f => f.toLowerCase().startsWith(season + '-'));
-  if (seasonFiles.length > 0) return seasonFiles;
+  const combined = [...monthFiles, ...seasonFiles];
+  if (combined.length > 0) return combined;
 
-  // Priority 4: general (no date, month, or season prefix)
+  // Priority 3: general (no date, month, or season prefix)
   return files.filter(f => !/^\d{4}/.test(f) && !/^\d{2}\D/.test(f) && !SEASON_RE.test(f));
 }
 

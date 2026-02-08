@@ -51,10 +51,9 @@ A simple display of date and time, weather with a 3-day forecast, and a calendar
    This generates `backgrounds.json`, which tells the dashboard which images are available. Re-run `./update-backgrounds.sh` whenever you add or remove images. The manifest is also re-read automatically on each cycle interval.
 
    **Background priority by filename prefix:**
-   1. **Date-specific** (`MMDD` prefix, e.g. `0214-valentines.jpg`) — shown only on that date
-   2. **Month-specific** (`MM` prefix + non-digit, e.g. `02-winter.jpg`) — shown during that month
-   3. **Season-specific** (`spring-`, `summer-`, `autumn-`, `winter-` prefix, e.g. `spring-flowers.jpg`) — shown during that astronomical season (uses latitude from config to detect hemisphere)
-   4. **General** (no prefix, e.g. `bokeh1.jpg`) — used when no higher-priority match exists
+   1. **Date-specific** (`MMDD` prefix, e.g. `0214-valentines.jpg`) — shown exclusively on that date
+   2. **Month + Season combined** — month-specific (`MM` prefix + non-digit, e.g. `02-snow.jpg`) and season-specific (`spring-`, `summer-`, `autumn-`, `winter-` prefix, e.g. `winter-frost.jpg`) are pooled together and cycle as one set. Season detection uses astronomical dates and latitude from config for hemisphere.
+   3. **General** (no prefix, e.g. `bokeh1.jpg`) — used when no month or season match exists
 
 4. Serve with any web server:
 
