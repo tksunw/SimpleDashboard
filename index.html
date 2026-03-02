@@ -511,8 +511,8 @@ function fetchWeather() {
           const dt = new Date(day.time * 1000);
           const label = DAYS_SHORT[dt.getDay()];
           const icon = WEATHER_ICONS[day.icon] || '';
-          const hi = Math.round(day.temperatureHigh);
-          const lo = Math.round(day.temperatureLow);
+          const hi = Math.round(day.temperatureMax);
+          const lo = Math.round(day.temperatureMin);
 
           const el = document.createElement('div');
           el.className = 'forecast-day';
